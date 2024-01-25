@@ -19,36 +19,36 @@ import (
 )
 
 type validEntry struct {
-	active      bool
-	host        string
-	user        string
-	token       string
-	tokenSource string
-	gitProtocol string
-	scopes      string
+	Active      bool
+	Host        string
+	User        string
+	Token       string
+	TokenSource string
+	GitProtocol string
+	Scopes      string
 }
 
 func (e validEntry) String(cs *iostreams.ColorScheme) string {
 	var sb strings.Builder
 
 	sb.WriteString(
-		fmt.Sprintf("  %s Logged in to %s account %s (%s)\n", cs.SuccessIcon(), e.host, cs.Bold(e.user), e.tokenSource),
+		fmt.Sprintf("  %s Logged in to %s account %s (%s)\n", cs.SuccessIcon(), e.Host, cs.Bold(e.User), e.TokenSource),
 	)
-	activeStr := fmt.Sprintf("%v", e.active)
+	activeStr := fmt.Sprintf("%v", e.Active)
 	sb.WriteString(fmt.Sprintf("  - Active account: %s\n", cs.Bold(activeStr)))
-	sb.WriteString(fmt.Sprintf("  - Git operations protocol: %s\n", cs.Bold(e.gitProtocol)))
-	sb.WriteString(fmt.Sprintf("  - Token: %s\n", cs.Bold(e.token)))
+	sb.WriteString(fmt.Sprintf("  - Git operations protocol: %s\n", cs.Bold(e.GitProtocol)))
+	sb.WriteString(fmt.Sprintf("  - Token: %s\n", cs.Bold(e.Token)))
 
-	if expectScopes(e.token) {
-		sb.WriteString(fmt.Sprintf("  - Token scopes: %s\n", cs.Bold(displayScopes(e.scopes))))
-		if err := shared.HeaderHasMinimumScopes(e.scopes); err != nil {
+	if expectScopes(e.Token) {
+		sb.WriteString(fmt.Sprintf("  - Token scopes: %s\n", cs.Bold(displayScopes(e.Scopes))))
+		if err := shared.HeaderHasMinimumScopes(e.Scopes); err != nil {
 			var missingScopesError *shared.MissingScopesError
 			if errors.As(err, &missingScopesError) {
 				missingScopes := strings.Join(missingScopesError.MissingScopes, ",")
 				sb.WriteString(fmt.Sprintf("  %s Missing required token scopes: %s\n",
 					cs.WarningIcon(),
 					cs.Bold(displayScopes(missingScopes))))
-				refreshInstructions := fmt.Sprintf("gh auth refresh -h %s", e.host)
+				refreshInstructions := fmt.Sprintf("gh auth refresh -h %s", e.Host)
 				sb.WriteString(fmt.Sprintf("  - To request missing scopes, run: %s\n", cs.Bold(refreshInstructions)))
 			}
 		}
@@ -340,13 +340,13 @@ func buildEntry(httpClient *http.Client, opts buildEntryOptions) Entry {
 	}
 
 	return validEntry{
-		active:      opts.active,
-		gitProtocol: opts.gitProtocol,
-		host:        opts.hostname,
-		scopes:      scopesHeader,
-		token:       displayToken(opts.token, opts.showToken),
-		tokenSource: opts.tokenSource,
-		user:        opts.username,
+		Active:      opts.active,
+		GitProtocol: opts.gitProtocol,
+		Host:        opts.hostname,
+		Scopes:      scopesHeader,
+		Token:       displayToken(opts.token, opts.showToken),
+		TokenSource: opts.tokenSource,
+		User:        opts.username,
 	}
 }
 
